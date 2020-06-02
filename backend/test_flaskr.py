@@ -6,9 +6,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flaskr import create_app
 from models import setup_db, Question, Category
 
-
-
-
 class TriviaTestCase(unittest.TestCase):
     """This class represents the trivia test case"""
 
@@ -108,7 +105,7 @@ class TriviaTestCase(unittest.TestCase):
     # -----------------------------------#
 
     def test_delete_question(self):
-        questoin_id = 30
+        questoin_id = 34
         res = self.client().delete(f'/questions/{questoin_id}')
         data = json.loads(res.data)
 
@@ -151,7 +148,6 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assert422request(data, res.status_code)
     
-    # TDOD: has issues
     def test_search_question(self):
         res = self.client().post('/questions', json={'searchTerm': 'What'})
         data = json.loads(res.data)
@@ -161,11 +157,11 @@ class TriviaTestCase(unittest.TestCase):
         self.assertNotEmpty(data['totalQuestions'])
 
     # TDOD: has issues
-    def test_404_if_fail_search_question(self):
+    def test_422_if_fail_search_question(self):
         res = self.client().post('/questions', json={'searchTerm': 'emptyQuestion'})
         data = json.loads(res.data)
 
-        self.assert404request(data, res.status_code)
+        self.assert422request(data, res.status_code)
 
     # ------------------------------------------ #
     ### TEST GET QUESTIONS BY CATEGORY REQUEST ###

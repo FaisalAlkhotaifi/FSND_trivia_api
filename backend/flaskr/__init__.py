@@ -3,6 +3,7 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
+import sys
 
 from models import setup_db, Question, Category
 
@@ -46,7 +47,7 @@ def create_app(test_config=None):
         "categories": categories_dictionary
       })
 
-  @app.route('/questions')
+  @app.route('/questions', methods=['GET'])
   def get_questions():
       questions = Question.query.order_by(Question.id).all()
       current_questions = paginate_question(request, questions)
@@ -97,23 +98,15 @@ def create_app(test_config=None):
 
       if body is None:
         abort(422)
-
-      question = body.get('question', None)
-      answer = body.get('answer', None)
-      difficulty = body.get('difficulty', None)
-      category = body.get('category', None)
-      searchTerm = body.get('searchTerm', None)
       
       try:
+        searchTerm = body.get('searchTerm', None)
         if searchTerm:
-          print(f'searchTerm: {searchTerm}')
           questions = Question.query.filter(Question.question.ilike(f'%{searchTerm}%')).all()
-          
-          for q in questions:
-            print(f'question: {question.question}')
+          if len(questions) == 0:
+            abort(404)
 
           current_questions = paginate_question(request, questions)
-
           if len(current_questions) == 0:
             abort(404)
 
@@ -124,6 +117,11 @@ def create_app(test_config=None):
           })
 
         else:
+          question = body.get('question', None)
+          answer = body.get('answer', None)
+          difficulty = body.get('difficulty', None)
+          category = body.get('category', None)
+
           if question is None or answer is None or difficulty is None or category is None:
             abort(422)
 
