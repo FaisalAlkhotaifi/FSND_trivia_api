@@ -129,9 +129,9 @@ def create_app(test_config=None):
                 category = body.get('category', None)
 
                 isValidInput = (question is None
-                                OR answer is None
-                                OR difficulty is None
-                                OR category is None)
+                                or answer is None
+                                or difficulty is None
+                                or category is None)
 
                 if (isValidInput):
                     abort(422)
@@ -199,8 +199,6 @@ def create_app(test_config=None):
         previous_questions_ids = body.get('previous_questions')
         category_id = body.get('quiz_category')['id']
 
-        print(f'body: {body}')
-
         questions = []
         formatted_next_question = None
 
@@ -213,7 +211,7 @@ def create_app(test_config=None):
               ).all()
 
         if len(questions) == 0:
-            abort(404)
+            formatted_next_question = None
         if len(questions) > 0:
             next_question = random.choice(questions)
             formatted_next_question = next_question.format()

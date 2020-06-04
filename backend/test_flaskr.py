@@ -105,17 +105,22 @@ class TriviaTestCase(unittest.TestCase):
     # -----------------------------------#
 
     def test_delete_question(self):
-        questoin_id = 34
-        res = self.client().delete(f'/questions/{questoin_id}')
-        data = json.loads(res.data)
+        last_question = Question.query.order_by(Question.id.desc()).first()
 
-        question = Question.query.filter(Question.id == questoin_id).one_or_none()
+        if last_question is None:
+            res = self.client().delete(f'/questions/{last_question.id}')
+            data = json.loads(res.data)
 
-        self.assertSuccess(data, res.status_code)
-        self.assertEqual(data['deleted_id'], questoin_id)
-        self.assertNotEmpty(len(data['questions']))
-        self.assertNotEmpty(data['totalQuestions'])
-        self.assertEqual(question, None)
+            question = Question.query.filter(Question.id == last_question.id).one_or_none()
+
+            self.assertSuccess(data, res.status_code)
+            self.assertEqual(data['deleted_id'], last_question.id)
+            self.assertNotEmpty(len(data['questions']))
+            self.assertNotEmpty(data['totalQuestions'])
+            self.assertEqual(question, None)
+        else:
+            pass
+
 
     def test_422_delete_not_exist_question(self):
         res = self.client().delete('/questions/1000')
@@ -156,7 +161,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertNotEmpty(len(data['questions']))
         self.assertNotEmpty(data['totalQuestions'])
 
-    # TDOD: has issues
     def test_422_if_fail_search_question(self):
         res = self.client().post('/questions', json={'searchTerm': 'emptyQuestion'})
         data = json.loads(res.data)
@@ -177,7 +181,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertNotEmpty(data['currentCategory']) 
 
     def test_404_not_exist_category(self):
-        res = self.client().get('/categories/10/questions')
+        res = self.client().get('/categories/100/questions')
         data = json.loads(res.data)
 
         self.assert404request(data, res.status_code)
@@ -199,12 +203,6 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertSuccess(data, res.status_code)
         self.assertNotEmpty(data['question'])
-
-    def test_404_not_exist_category(self):
-        res = self.client().post('/quizzes', json={'previous_questions': [], 'quiz_category': {'type': 'Unknown', 'id': '10'}})
-        data = json.loads(res.data)
-
-        self.assert404request(data, res.status_code)
 
 
 # Make the tests conveniently executable
