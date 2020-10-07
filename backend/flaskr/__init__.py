@@ -221,6 +221,21 @@ def create_app(test_config=None):
             "question": formatted_next_question
         })
 
+    @app.route('/search', methods=['POST'])
+    def find_questions():
+        body = request.get_json()
+        search_term = body['searchTerm']
+        search_data = Question.query.filter(Question.question.ilike('%' + search_term + '%')).all()
+
+        if not search_data:
+            abort(404)
+
+        return jsonify({
+            'questions': [data.format() for data in search_data],
+            'success': True,
+            'totalQuestions': len(search_data)
+        }), 200
+
     # ------- Handle error section -------
 
     @app.errorhandler(404)

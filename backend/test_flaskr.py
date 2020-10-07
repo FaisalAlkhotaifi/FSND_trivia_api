@@ -107,7 +107,7 @@ class TriviaTestCase(unittest.TestCase):
     def test_delete_question(self):
         last_question = Question.query.order_by(Question.id.desc()).first()
 
-        if last_question is None:
+        if last_question is not None:
             res = self.client().delete(f'/questions/{last_question.id}')
             data = json.loads(res.data)
 
@@ -191,7 +191,12 @@ class TriviaTestCase(unittest.TestCase):
     # ---------------------------- #
 
     def test_get_questions_by_category_with_no_previous_question(self):
-        res = self.client().post('/quizzes', json={'previous_questions': [], 'quiz_category': {'type': 'Science', 'id': '1'}})
+        # res = self.client().post('/quizzes', json={'previous_questions': [], 'quiz_category': {'type': 'Science', 'id': '1'}})
+        # data = json.loads(res.data)
+        new_quiz_round = {'previous_questions': [],
+                          'quiz_category': {'type': 'Entertainment', 'id': 5}}
+
+        res = self.client().post('/quizzes', json=new_quiz_round)
         data = json.loads(res.data)
 
         self.assertSuccess(data, res.status_code)
